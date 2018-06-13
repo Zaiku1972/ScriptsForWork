@@ -1,0 +1,26 @@
+import warnings
+warnings.filterwarnings('ignore', '.*do not.*',)
+from sklearn.linear_model import RandomizedLasso,LassoLarsCV
+from sklearn.exceptions import ConvergenceWarning 
+#import os
+#os.environ["TF_CPP_MIN_LOG_LEVEL"]="3"
+
+
+with warnings.catch_warnings():
+    warnings.simplefilter('ignore', UserWarning)
+    warnings.simplefilter('ignore', ConvergenceWarning)
+    lars_cv = LassoLarsCV(cv=6).fit(X_train1, y_train1)
+
+
+alphas = np.linspace(lars_cv.alphas_[0], .1 * lars_cv.alphas_[0], 6)
+
+rlasso = RandomizedLasso(alpha=alphas)
+rlasso.fit(X_train1, y_train1)
+
+data_cols1 = X_train1.columns.tolist()
+import sklearn.datasets 
+PO_DataSet1 = sklearn.datasets.base.Bunch(data = X_train1,target = y_train1,feature_names = data_cols1) 
+
+names1 = PO_DataSet1['feature_names']
+list3 = sorted(zip(map(lambda x: round(x, 4), rlasso.scores_), 
+                 names), reverse=True)
